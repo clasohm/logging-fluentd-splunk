@@ -1,7 +1,7 @@
 # Based on
 # https://github.com/openshift/origin-aggregated-logging/blob/release-3.11/fluentd/Dockerfile
 
-FROM rhscl/ruby-25-rhel7
+FROM registry.access.redhat.com/rhscl/ruby-25-rhel7
 
 ENV DATA_VERSION=1.6.0 \
     FLUENTD_VERSION=0.12.43 \
