@@ -29,9 +29,7 @@ RUN yum-config-manager --enable rhel-7-server-ose-3.11-rpms && \
     INSTALL_PKGS="fluentd-${FLUENTD_VERSION} \
                   hostname \
                   bc \
-                  iproute \
-                  ruby-devel \
-                  rubygem-fluent-plugin-secure-forward" && \
+                  iproute" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum clean all
