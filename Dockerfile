@@ -13,7 +13,7 @@ USER 0
 RUN \
   scl enable rh-ruby25 'gem install -N fluent-plugin-splunk-enterprise fluent-plugin-secure-forward' && \
   mkdir -p /var/log/fluentd /var/lib/fluentd && \
-  chgrp 0 /var/log/fluentd /var/lib/fluentd \
+  chgrp 0 /var/log/fluentd /var/lib/fluentd && \
   chmod g=u /var/log/fluentd /var/lib/fluentd
 
 ADD configs.d/ /etc/fluent/configs.d/
