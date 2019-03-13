@@ -11,13 +11,21 @@ ENV LOGGING_FILE_PATH=/var/log/fluentd/fluentd.log \
 USER 0
 
 RUN \
-  scl enable rh-ruby25 'gem install -N fluent-plugin-splunk-enterprise fluent-plugin-secure-forward' && \
-  mkdir -p /var/log/fluentd /var/lib/fluentd && \
-  chgrp 0 /var/log/fluentd /var/lib/fluentd && \
-  chmod g=u /var/log/fluentd /var/lib/fluentd
+  INSTALL_PKGS="bc ip" && \
+  RUBY_GEMS="fluent-plugin-splunk-enterprise fluent-plugin-secure-forward" && \
+  FLUENTD_LOG_DIR=/var/log/fluentd && \
+  FLUENTD_LIB_DIR=/var/lib/fluentd && \
+  yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+  rpm -V $INSTALL_PKGS && \
+  yum clean all && \
+  scl enable rh-ruby25 "gem install -N $RUBY_GEMS" && \
+  mkdir -p $FLUENTD_LOG_DIR $FLUENTD_LIB_DIR && \
+  chgrp 0 $FLUENTD_LOG_DIR $FLUENTD_LIB_DIR && \
+  chmod g=u $FLUENTD_LOG_DIR $FLUENTD_LIB_DIR
 
 ADD configs.d/ /etc/fluent/configs.d/
 ADD fluent.conf /etc/fluent/
+ADD logs /usr/local/bin/
 ADD run.sh ${HOME}/
 
 USER 1000
