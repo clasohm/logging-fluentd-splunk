@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Based on
+# https://github.com/openshift/origin-aggregated-logging/blob/release-3.11/fluentd/run.sh
+
 CFG_DIR=/etc/fluent/configs.d
 
 echo "============================="
