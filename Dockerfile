@@ -3,38 +3,29 @@
 
 FROM registry.access.redhat.com/rhscl/ruby-25-rhel7
 
-ENV DATA_VERSION=1.6.0 \
-    FLUENTD_VERSION=0.12.43 \
-    FLUENTD_ES=1.13.0-1 \
-    FLUENTD_KUBE_METADATA=1.0.1-1 \
-    FLUENTD_REWRITE_TAG=1.5.6-1 \
-    FLUENTD_SECURE_FWD=0.4.5-2 \
-    FLUENTD_SYSTEMD=0.0.9-1 \
-    FLUENTD_VIAQ_DATA_MODEL=0.0.13 \
-    FLUENTD_AUDIT_LOG_PARSER_VERSION=0.0.5 \
-    FLUENTD_RECORD_MODIFIER=0.6.1 \
-    GEM_HOME=/usr/share/gems \
-    HOME=/opt/app-root/src \
+ENV HOME=/opt/app-root/src \
     PATH=/opt/app-root/src/bin:/opt/app-root/bin:/usr/libexec/fluentd/bin:$PATH \
-    RUBY_VERSION=2.0 \
-    SERVERENGINE_VERSION=1.6.0 \
     LOGGING_FILE_PATH=/var/log/fluentd/fluentd.log \
     LOGGING_FILE_AGE=10 \
     LOGGING_FILE_SIZE=1024000 \
     container=oci
 
-USER 0
-RUN yum-config-manager --enable rhel-7-server-ose-3.11-rpms && \
-    yum-config-manager --enable rhel-7-server-optional-rpms && \
-    INSTALL_PKGS="fluentd-${FLUENTD_VERSION} \
-                  hostname \
-                  bc \
-                  iproute" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    yum clean all
+RUN gem install \
+  fluent-plugin-splunk-enterprise \
+  fluent-plugin-secure-forward
 
-RUN fluent-gem install fluent-plugin-splunk-enterprise
+ADD configs.d/ /etc/fluent/configs.d/
+ADD run.sh ${HOME}/
+
+RUN mkdir -p /etc/fluent/configs.d/{dynamic,user} && \
+    chmod 777 /etc/fluent/configs.d/dynamic && \
+    ln -s /etc/fluent/configs.d/user/fluent.conf /etc/fluent/fluent.conf
+
+WORKDIR ${HOME}
+
+CMD ["sh", "run.sh"]
+
+LABEL io.k8s.display-name=Fluentd
 
 LABEL \
         io.k8s.description="Fluentd container for sending logs to Splunk" \
