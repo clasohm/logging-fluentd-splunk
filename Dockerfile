@@ -11,17 +11,12 @@ ENV LOGGING_FILE_PATH=/var/log/fluentd/fluentd.log \
 RUN scl enable rh-ruby25 'gem install fluent-plugin-splunk-enterprise fluent-plugin-secure-forward'
 
 ADD configs.d/ /etc/fluent/configs.d/
+ADD fluent.conf /etc/fluent/
 ADD run.sh ${HOME}/
-
-RUN mkdir -p /etc/fluent/configs.d/{dynamic,user} && \
-    chmod 777 /etc/fluent/configs.d/dynamic && \
-    ln -s /etc/fluent/configs.d/user/fluent.conf /etc/fluent/fluent.conf
 
 WORKDIR ${HOME}
 
 CMD ["sh", "run.sh"]
-
-LABEL io.k8s.display-name=Fluentd
 
 LABEL \
         io.k8s.description="Fluentd container for sending logs to Splunk" \
