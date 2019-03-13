@@ -11,7 +11,7 @@ ENV LOGGING_FILE_PATH=/var/log/fluentd/fluentd.log \
 USER 0
 
 RUN \
-  INSTALL_PKGS="bc ip" && \
+  INSTALL_PKGS="bc iproute" && \
   RUBY_GEMS="fluent-plugin-splunk-enterprise fluent-plugin-secure-forward" && \
   FLUENTD_LOG_DIR=/var/log/fluentd && \
   FLUENTD_LIB_DIR=/var/lib/fluentd && \
