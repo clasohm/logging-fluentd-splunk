@@ -8,9 +8,6 @@ echo "If you want to print out the logs, use command:"
 echo "oc exec <pod_name> -- logs"
 echo "============================="
 
-if [ ! -d `dirname $LOGGING_FILE_PATH` ]; then
-  mkdir -p `dirname $LOGGING_FILE_PATH`
-fi
 touch $LOGGING_FILE_PATH; exec >> $LOGGING_FILE_PATH 2>&1
 
 fluentdargs="--no-supervisor"
@@ -35,9 +32,7 @@ BUFFER_SIZE_LIMIT=${BUFFER_SIZE_LIMIT:-16777216}
 # If not, give up one output tag per plugin for now.
 output_label=$( egrep "<label @OUTPUT>" $CFG_DIR/../fluent.conf || : )
 
-# If FILE_BUFFER_PATH exists and it is not a directory, mkdir fails with the error.
 FILE_BUFFER_PATH=/var/lib/fluentd
-mkdir -p $FILE_BUFFER_PATH
 
 # Get the available disk size.
 DF_LIMIT=$(df -B1 $FILE_BUFFER_PATH | grep -v Filesystem | awk '{print $2}')
@@ -91,9 +86,6 @@ if [ -z $BUFFER_QUEUE_LIMIT -o $BUFFER_QUEUE_LIMIT -eq 0 ]; then
     exit 1
 fi
 export BUFFER_QUEUE_LIMIT BUFFER_SIZE_LIMIT
-
-# Create a directory for Fluentd log files
-mkdir -p /var/log/fluentd/
 
 if [[ $DEBUG ]] ; then
     exec scl enable rh-ruby25 "fluentd $fluentdargs" > /var/log/fluentd.log 2>&1
