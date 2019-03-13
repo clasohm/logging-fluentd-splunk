@@ -8,6 +8,8 @@ ENV LOGGING_FILE_PATH=/var/log/fluentd/fluentd.log \
     LOGGING_FILE_SIZE=1024000 \
     container=oci
 
+USER 0
+
 RUN \
   scl enable rh-ruby25 'gem install -N fluent-plugin-splunk-enterprise fluent-plugin-secure-forward' && \
   mkdir -p /var/log/fluentd /var/lib/fluentd && \
@@ -17,6 +19,8 @@ RUN \
 ADD configs.d/ /etc/fluent/configs.d/
 ADD fluent.conf /etc/fluent/
 ADD run.sh ${HOME}/
+
+USER 1000
 
 WORKDIR ${HOME}
 
