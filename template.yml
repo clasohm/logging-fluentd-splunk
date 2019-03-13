@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: fluentd-secure-forwarder
+metadata:
+  annotations:
+    openshift.io/display-name: Fluentd Secure Forwarder
+    tags: fluentd
+  name: fluentd-secure-forwarder
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      template: fluentd-secure-forwarder
+    name: fluentd-secure-forwarder
+    namespace: ${NAMESPACE}
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      template: fluentd-secure-forwarder
+    name: fluentd-secure-forwarder
+    namespace: ${NAMESPACE}
+  spec:
+    failedBuildsHistoryLimit: 5
+    output:
+      to:
+        kind: ImageStreamTag
+        name: fluentd-secure-forwarder:latest
+    runPolicy: Serial
+    source:
+      git:
+        ref: master
+        uri: https://github.com/clasohm/logging-fluentd-splunk.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: ruby:2.5
+          namespace: openshift
+      type: Docker
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: secure-forwarder-cert
+    labels:
+      template: fluentd-secure-forwarder
+    name: fluentd-secure-forwarder
+  spec:
+    ports:
+    - name: fluentd-secure-forwarder
+      port: 24284
+    selector:
+      name: fluentd-secure-forwarder
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    labels:
+      template: fluentd-secure-forwarder
+    name: fluentd-secure-forwarder
+  type: Opaque
+  data:
+    sf-shared-key: c2hhcmVka2V5
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      template: fluentd-secure-forwarder
+    name: fluentd-secure-forwarder
+  spec:
+    replicas: 1
+    selector:
+      template: fluentd-secure-forwarder
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          template: fluentd-secure-forwarder
+      spec:
+        containers:
+        - name: fluentd
+          env:
+          - name: NAMESPACE
+            value: ${NAMESPACE}
+          - name: SF_SHARED_KEY
+            valueFrom:
+              secretKeyRef:
+                key: sf-shared-key
+                name: fluentd-secure-forwarder
+          image: docker-registry.default.svc:5000/${NAMESPACE}/logging-fluentd-splunk
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 24284
+          livenessProbe:
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 24284
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: fluent-certs
+              mountPath: /etc/fluent/certs
+              readOnly: true
+        volumes:
+          - name: fluent-certs
+            secret:
+              secretName: secure-forwarder-cert
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - fluentd
+        from:
+          kind: ImageStreamTag
+          name: fluentd-secure-forwarder:latest
+          namespace: ${NAMESPACE}
+      type: ImageChange
+    - type: ConfigChange
+parameters:
+- description: The OpenShift Namespace to deploy to.
+  displayName: Namespace
+  name: NAMESPACE
