@@ -37,10 +37,6 @@ FILE_BUFFER_PATH=/var/lib/fluentd
 # Get the available disk size.
 DF_LIMIT=$(df -B1 $FILE_BUFFER_PATH | grep -v Filesystem | awk '{print $2}')
 DF_LIMIT=${DF_LIMIT:-0}
-if [ "${MUX_FILE_BUFFER_STORAGE_TYPE:-}" = "hostmount" ]; then
-    # Use 1/4 of the disk space for hostmount.
-    DF_LIMIT=$(expr $DF_LIMIT / 4) || :
-fi
 if [ $DF_LIMIT -eq 0 ]; then
     echo "ERROR: No disk space is available for file buffer in $FILE_BUFFER_PATH."
     exit 1
@@ -52,17 +48,17 @@ if [ $TOTAL_LIMIT -le 0 ]; then
     exit 1
 fi
 
+NUM_OUTPUTS=1
+
 # If forward and secure-forward outputs are configured, add them to NUM_OUTPUTS.
 forward_files=$( grep -l "@type .*forward" ${CFG_DIR}/*/* 2> /dev/null || : )
 for afile in ${forward_files} ; do
     file=$( basename $afile )
-    if [ "$file" != "${mux_client_filename:-}" ]; then
-        grep "@type .*forward" $afile | while read -r line; do
-            if [ $( expr "$line" : "^ *#" ) -eq 0 ]; then
-                NUM_OUTPUTS=$( expr $NUM_OUTPUTS + 1 )
-            fi
-        done
-    fi
+    grep "@type .*forward" $afile | while read -r line; do
+        if [ $( expr "$line" : "^ *#" ) -eq 0 ]; then
+            NUM_OUTPUTS=$( expr $NUM_OUTPUTS + 1 )
+        fi
+    done
 done
 
 TOTAL_LIMIT=$(expr $TOTAL_LIMIT \* $NUM_OUTPUTS) || :
