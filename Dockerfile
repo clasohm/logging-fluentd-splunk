@@ -34,7 +34,7 @@ RUN yum-config-manager --enable rhel-7-server-ose-3.11-rpms && \
     rpm -V $INSTALL_PKGS && \
     yum clean all
 
-RUN gem install fluent-plugin-splunk-hec
+RUN fluent-gem install fluent-plugin-splunk-enterprise
 
 LABEL \
         io.k8s.description="Fluentd container for sending logs to Splunk" \
