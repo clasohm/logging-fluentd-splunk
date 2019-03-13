@@ -3,9 +3,7 @@
 
 FROM registry.access.redhat.com/rhscl/ruby-25-rhel7
 
-ENV HOME=/opt/app-root/src \
-    PATH=/opt/app-root/src/bin:/opt/app-root/bin:/usr/libexec/fluentd/bin:$PATH \
-    LOGGING_FILE_PATH=/var/log/fluentd/fluentd.log \
+ENV LOGGING_FILE_PATH=/var/log/fluentd/fluentd.log \
     LOGGING_FILE_AGE=10 \
     LOGGING_FILE_SIZE=1024000 \
     container=oci
