@@ -96,7 +96,7 @@ export BUFFER_QUEUE_LIMIT BUFFER_SIZE_LIMIT
 mkdir -p /var/log/fluentd/
 
 if [[ $DEBUG ]] ; then
-    exec fluentd $fluentdargs > /var/log/fluentd.log 2>&1
+    exec scl enable rh-ruby25 "fluentd $fluentdargs" > /var/log/fluentd.log 2>&1
 else
-    exec fluentd $fluentdargs
+    exec scl enable rh-ruby25 "fluentd $fluentdargs"
 fi
