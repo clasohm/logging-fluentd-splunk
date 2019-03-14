@@ -61,7 +61,20 @@ objects:
     - name: fluentd-secure-forwarder
       port: 24284
     selector:
-      name: fluentd-secure-forwarder
+      deploymentconfig: fluentd-secure-forwarder
+- apiVersion: v1
+  kind: NetworkPolicy
+  metadata:
+    name: allow-from-openshift-logging
+  spec:
+    ingress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                name: openshift-logging
+  podSelector: {}
+  policyTypes:
+      - Ingress
 - apiVersion: v1
   kind: ConfigMap
   metadata:
@@ -69,9 +82,9 @@ objects:
       template: fluentd-secure-forwarder
     name: fluentd-secure-forwarder
   data:
-    splunk-hec-host: input-prd-example.cloud.splunk.com
-    splunk-hec-port: 8088
-    splunk-hec-ssl-verify: false
+    splunk-hec-host: "input-prd-example.cloud.splunk.com"
+    splunk-hec-port: "8088"
+    splunk-hec-ssl-verify: "false"
 - apiVersion: v1
   kind: Secret
   metadata:
