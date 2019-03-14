@@ -63,6 +63,16 @@ objects:
     selector:
       name: fluentd-secure-forwarder
 - apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      template: fluentd-secure-forwarder
+    name: fluentd-secure-forwarder
+  data:
+    splunk-hec-host: input-prd-example.cloud.splunk.com
+    splunk-hec-port: 8088
+    splunk-hec-ssl-verify: false
+- apiVersion: v1
   kind: Secret
   metadata:
     labels:
@@ -70,7 +80,8 @@ objects:
     name: fluentd-secure-forwarder
   type: Opaque
   data:
-    sf-shared-key: c2hhcmVka2V5
+    sf-shared-key: Q0hBTkdFTUU=
+    splunk-hec-token: Q0hBTkdFTUU=
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -97,6 +108,26 @@ objects:
             valueFrom:
               secretKeyRef:
                 key: sf-shared-key
+                name: fluentd-secure-forwarder
+          - name: SPLUNK_HEC_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: splunk-hec-host
+                name: fluentd-secure-forwarder
+          - name: SPLUNK_HEC_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: splunk-hec-port
+                name: fluentd-secure-forwarder
+          - name: SPLUNK_HEC_SSL_VERIFY
+            valueFrom:
+              configMapKeyRef:
+                key: splunk-hec-ssl-verify
+                name: fluentd-secure-forwarder
+          - name: SPLUNK_HEC_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: splunk-hec-token
                 name: fluentd-secure-forwarder
           image: docker-registry.default.svc:5000/${NAMESPACE}/logging-fluentd-splunk
           imagePullPolicy: IfNotPresent
