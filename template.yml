@@ -35,7 +35,7 @@ objects:
     source:
       git:
         ref: master
-        uri: https://github.com/clasohm/logging-fluentd-splunk.git
+        uri: https://github.com/clasohm/fluentd-secure-forwarder.git
       type: Git
     strategy:
       dockerStrategy:
