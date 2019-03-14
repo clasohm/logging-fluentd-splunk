@@ -29,7 +29,8 @@ In the openshift-logging/logging-fluentd ConfigMap,
 secure-forward.conf has to modified to send data to the
 fluentd-secure-forwarder instance:
 
-```<store>
+```
+<store>
   @type secure_forward
   self_hostname pod-${HOSTNAME}
   shared_key CHANGEME
