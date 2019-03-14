@@ -62,7 +62,7 @@ objects:
       port: 24284
     selector:
       deploymentconfig: fluentd-secure-forwarder
-- apiVersion: v1
+- apiVersion: networking.k8s.io/v1
   kind: NetworkPolicy
   metadata:
     name: allow-from-openshift-logging
